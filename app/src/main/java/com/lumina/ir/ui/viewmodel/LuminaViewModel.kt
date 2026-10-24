@@ -179,24 +179,28 @@ class LuminaViewModel(application: Application) : AndroidViewModel(application) 
     // LABORATORIO DE ESCANEO DE CÓDIGOS OCULTOS (HEX EXPLORER)
     // =========================================================================
 
+    fun setExplorerAddress(addr: Int) {
+        _currentAddress.value = addr and 0xFFFF
+    }
+
     fun setExplorerCommand(cmd: Int) {
         _explorerCommand.value = cmd.coerceIn(0, 255)
     }
 
-    fun testCurrentExplorerCode() {
-        irManager.sendCommand(_explorerCommand.value, _currentAddress.value)
+    fun testCurrentExplorerCode(repeatCount: Int = 2) {
+        irManager.sendCommand(_explorerCommand.value, _currentAddress.value, repeatCount = repeatCount)
     }
 
     fun nextExplorerCode() {
         val next = (_explorerCommand.value + 1) % 256
         _explorerCommand.value = next
-        testCurrentExplorerCode()
+        testCurrentExplorerCode(repeatCount = 1)
     }
 
     fun previousExplorerCode() {
         val prev = if (_explorerCommand.value - 1 < 0) 255 else _explorerCommand.value - 1
         _explorerCommand.value = prev
-        testCurrentExplorerCode()
+        testCurrentExplorerCode(repeatCount = 1)
     }
 
     fun toggleAutoScan() {

@@ -129,7 +129,37 @@ fun HexExplorerScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Selector rápido de familias de direcciones NEC para lámparas chinas
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Rango:", fontSize = 11.sp, color = TextMuted)
+                    listOf(0x00FF, 0x00F7, 0xF708, 0xEF00).forEach { addrPreset ->
+                        val isSelected = address == addrPreset
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (isSelected) AccentPrimary else SurfaceDarkElevated)
+                                .border(1.dp, if (isSelected) AccentPrimary else BorderSubtle, RoundedCornerShape(8.dp))
+                                .clickable { viewModel.setExplorerAddress(addrPreset) }
+                                .padding(horizontal = 6.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = "0x" + addrPreset.toString(16).uppercase().padStart(4, '0'),
+                                fontSize = 10.sp,
+                                fontFamily = FontFamily.Monospace,
+                                color = if (isSelected) Color.White else TextSecondary,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
 
                 // Display Gigante del Comando Hexadecimal Actual
                 Text(

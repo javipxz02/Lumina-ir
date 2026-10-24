@@ -44,12 +44,13 @@ object NecIrProtocol {
      * @return Array de 67 enteros alternando pulsos ON y OFF en microsegundos.
      */
     fun encodeNec(address: Int = DEFAULT_ADDRESS_16, command: Int): IntArray {
-        val addrLow = address and 0xFF
+        // En estándar NEC: Byte 0 = Dirección alta (0x00), Byte 1 = Dirección baja / Invertida (0xFF)
         val addrHigh = (address shr 8) and 0xFF
+        val addrLow = address and 0xFF
         val cmd = command and 0xFF
         val cmdInv = cmd.inv() and 0xFF
 
-        return buildPattern(byteArrayOf(addrLow.toByte(), addrHigh.toByte(), cmd.toByte(), cmdInv.toByte()))
+        return buildPattern(byteArrayOf(addrHigh.toByte(), addrLow.toByte(), cmd.toByte(), cmdInv.toByte()))
     }
 
     /**
@@ -70,8 +71,8 @@ object NecIrProtocol {
      * - Posiciones impares (1, 3, 5...): Pausa infrarroja inactiva (espacio OFF).
      */
     private fun buildPattern(bytes: ByteArray): IntArray {
-        // 1 header mark + 1 header space + (32 bits * 2) + 1 stop bit = 67 valores
-        val pattern = IntArray(67)
+        // 1 header mark + 1 header space + (32 bits * 2) + 1 stop bit + 1 trailing pause = 68 valores pares (exigido por HAL de Android)
+        val pattern = IntArray(68)
         var idx = 0
 
         // 1. Header (9000 µs ON, 4500 µs OFF)
@@ -89,7 +90,10 @@ object NecIrProtocol {
         }
 
         // 3. Stop bit final (560 µs ON)
-        pattern[idx] = STOP_BIT_MARK
+        pattern[idx++] = STOP_BIT_MARK
+
+        // 4. Pausa de apagado final (10.000 µs OFF) para cerrar el ciclo de portadora y garantizar longitud par
+        pattern[idx] = 10000
 
         return pattern
     }

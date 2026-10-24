@@ -178,11 +178,19 @@ class IrTransmitterManager private constructor(private val context: Context) {
 
     /**
      * Encola un comando NEC estándar de 8 bits con dirección opcional (por defecto 0x00FF).
+     * Incluye soporte para repetición rápida (útil para receptores que necesitan ráfaga de activación).
      */
-    fun sendCommand(command: Int, address: Int = NecIrProtocol.DEFAULT_ADDRESS_16, cooldownMs: Long = globalCooldownMs) {
+    fun sendCommand(
+        command: Int,
+        address: Int = NecIrProtocol.DEFAULT_ADDRESS_16,
+        repeatCount: Int = 1,
+        cooldownMs: Long = globalCooldownMs
+    ) {
         val pattern = NecIrProtocol.encodeNec(address, command)
         val fullCode = NecIrProtocol.buildFullCode(command, address)
-        packetQueue.trySend(IrPacket(pattern, fullCode, cooldownMs))
+        repeat(repeatCount.coerceAtLeast(1)) {
+            packetQueue.trySend(IrPacket(pattern, fullCode, cooldownMs))
+        }
     }
 
     /**
