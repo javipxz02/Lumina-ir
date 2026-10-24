@@ -180,7 +180,7 @@ class SceneEngineService : Service() {
         stopCurrentScene()
         sceneJob = serviceScope.launch {
             val allColors = NecIrProtocol.CHROMATIC_LAMP_COLORS.filter { !it.isWhite }
-            val anchors = anchorColorIds.mapNotNull { id -> allColors.find { it.id == id } }
+            val anchors = anchorColorIds.toList().mapNotNull { id -> allColors.find { it.id == id } }
             if (anchors.size < 2) return@launch
 
             // Generar ruta cromática continua pasando por colores adyacentes
