@@ -38,6 +38,16 @@ class LuminaViewModel(application: Application) : AndroidViewModel(application) 
     private val _isLampOn = MutableStateFlow(true)
     val isLampOn: StateFlow<Boolean> = _isLampOn.asStateFlow()
 
+    // Perfiles para Lámpara de Música (foto física del usuario)
+    val musicProfiles: List<NecIrProtocol.MusicLampProfile> = NecIrProtocol.MUSIC_PROFILES
+    private val _selectedMusicProfile = MutableStateFlow(NecIrProtocol.MUSIC_PROFILES[0])
+    val selectedMusicProfile: StateFlow<NecIrProtocol.MusicLampProfile> = _selectedMusicProfile.asStateFlow()
+
+    private val _autoDetectStatus = MutableStateFlow<String?>(null)
+    val autoDetectStatus: StateFlow<String?> = _autoDetectStatus.asStateFlow()
+
+    private var autoDetectJob: Job? = null
+
     private val _selectedColor = MutableStateFlow(NecIrProtocol.CHROMATIC_LAMP_COLORS.first { it.isWhite })
     val selectedColor: StateFlow<NecIrProtocol.LampColor> = _selectedColor.asStateFlow()
 
@@ -86,19 +96,51 @@ class LuminaViewModel(application: Application) : AndroidViewModel(application) 
     private var autoScanJob: Job? = null
 
     // =========================================================================
-    // ACCIONES DE CONTROL DIRECTO
+    // ACCIONES DE CONTROL DIRECTO Y PERFIL DE MANDO
     // =========================================================================
+
+    fun selectMusicProfile(profile: NecIrProtocol.MusicLampProfile) {
+        _selectedMusicProfile.value = profile
+        _currentAddress.value = profile.address
+    }
+
+    fun sendMusicButton(command: Int, repeatCount: Int = 2) {
+        val profile = _selectedMusicProfile.value
+        irManager.sendCommand(command, profile.address, repeatCount = repeatCount)
+    }
+
+    fun startAutoDetect() {
+        autoDetectJob?.cancel()
+        autoDetectJob = viewModelScope.launch {
+            for (profile in musicProfiles) {
+                if (!isActive) break
+                _selectedMusicProfile.value = profile
+                _currentAddress.value = profile.address
+                _autoDetectStatus.value = "Probando: ${profile.name} (Pulso ON)..."
+                irManager.sendCommand(profile.cmdPowerOn, profile.address, repeatCount = 2)
+                delay(1500)
+            }
+            _autoDetectStatus.value = null
+        }
+    }
+
+    fun stopAutoDetect() {
+        autoDetectJob?.cancel()
+        autoDetectJob = null
+        _autoDetectStatus.value = null
+    }
 
     fun togglePower(on: Boolean) {
         _isLampOn.value = on
-        val cmd = if (on) NecIrProtocol.CMD_POWER_ON else NecIrProtocol.CMD_POWER_OFF
-        irManager.sendCommand(cmd)
+        val profile = _selectedMusicProfile.value
+        val cmd = if (on) profile.cmdPowerOn else profile.cmdPowerOff
+        irManager.sendCommand(cmd, profile.address, repeatCount = 2)
     }
 
     fun selectColor(color: NecIrProtocol.LampColor) {
         _selectedColor.value = color
         if (!_isLampOn.value) _isLampOn.value = true
-        irManager.sendCommand(color.command)
+        irManager.sendCommand(color.command, _selectedMusicProfile.value.address)
     }
 
     fun setBrightnessLevel(target: Int) {
@@ -107,16 +149,17 @@ class LuminaViewModel(application: Application) : AndroidViewModel(application) 
 
         val diff = target - current
         _brightnessLevel.value = target
+        val profile = _selectedMusicProfile.value
 
         if (diff > 0) {
-            irManager.sendCommandRepeated(NecIrProtocol.CMD_BRIGHTNESS_UP, diff, intervalMs = 90L)
+            irManager.sendCommandRepeated(profile.cmdBrightUp, diff, intervalMs = 90L)
         } else {
-            irManager.sendCommandRepeated(NecIrProtocol.CMD_BRIGHTNESS_DOWN, -diff, intervalMs = 90L)
+            irManager.sendCommandRepeated(profile.cmdBrightDown, -diff, intervalMs = 90L)
         }
     }
 
     fun sendFactoryMode(modeCommand: Int) {
-        irManager.sendCommand(modeCommand)
+        irManager.sendCommand(modeCommand, _selectedMusicProfile.value.address)
     }
 
     // =========================================================================

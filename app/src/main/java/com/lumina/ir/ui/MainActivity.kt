@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.SettingsRemote
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.lumina.ir.ui.screens.DashboardScreen
 import com.lumina.ir.ui.screens.HexExplorerScreen
+import com.lumina.ir.ui.screens.MusicRemoteScreen
 import com.lumina.ir.ui.screens.ScenesScreen
 import com.lumina.ir.ui.theme.AccentPrimary
 import com.lumina.ir.ui.theme.BackgroundDeep
@@ -45,9 +47,10 @@ import com.lumina.ir.ui.theme.TextPrimary
 import com.lumina.ir.ui.viewmodel.LuminaViewModel
 
 enum class LuminaTab(val title: String, val icon: ImageVector) {
-    DASHBOARD("Panel", Icons.Default.Lightbulb),
+    REMOTE("Mando", Icons.Default.SettingsRemote),
+    DASHBOARD("Panel Pro", Icons.Default.Lightbulb),
     SCENES("Escenas", Icons.Default.AutoAwesome),
-    EXPLORER("Laboratorio", Icons.Default.Terminal)
+    EXPLORER("Escáner", Icons.Default.Terminal)
 }
 
 class MainActivity : ComponentActivity() {
@@ -117,9 +120,10 @@ fun MainAppScaffold(viewModel: LuminaViewModel) {
                 .padding(innerPadding)
         ) {
             when (selectedTab) {
-                0 -> DashboardScreen(viewModel = viewModel)
-                1 -> ScenesScreen(viewModel = viewModel)
-                2 -> HexExplorerScreen(viewModel = viewModel)
+                0 -> MusicRemoteScreen(viewModel = viewModel)
+                1 -> DashboardScreen(viewModel = viewModel)
+                2 -> ScenesScreen(viewModel = viewModel)
+                3 -> HexExplorerScreen(viewModel = viewModel)
             }
         }
     }
