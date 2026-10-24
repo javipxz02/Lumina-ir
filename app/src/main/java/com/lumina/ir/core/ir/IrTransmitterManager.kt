@@ -110,12 +110,12 @@ class IrTransmitterManager private constructor(private val context: Context) {
     }
 
     private fun checkHardware() {
-        if (!hasIrEmitter()) {
+        if (irManager == null) {
             _status.value = IrStatus.MissingHardware
-            Log.w(TAG, "Dispositivo ${Build.MANUFACTURER} ${Build.MODEL} sin emisor IR detectado.")
+            Log.w(TAG, "Dispositivo ${Build.MANUFACTURER} ${Build.MODEL} sin servicio ConsumerIrManager.")
         } else {
             _status.value = IrStatus.Ready
-            Log.i(TAG, "Emisor IR inicializado con éxito. Soporta 38kHz: ${is38kHzSupported()}")
+            Log.i(TAG, "Emisor IR inicializado con éxito. hasIrEmitter=${hasIrEmitter()}, 38kHz=${is38kHzSupported()}")
         }
     }
 
@@ -145,16 +145,16 @@ class IrTransmitterManager private constructor(private val context: Context) {
 
         triggerHapticTick()
 
-        if (hasIrEmitter()) {
+        if (irManager != null) {
             try {
-                irManager?.transmit(NecIrProtocol.CARRIER_FREQUENCY_HZ, packet.pattern)
-                Log.d(TAG, "IR transmitido: 0x${packet.hexCode32.toString(16).uppercase().padStart(8, '0')}")
+                irManager.transmit(NecIrProtocol.CARRIER_FREQUENCY_HZ, packet.pattern)
+                Log.d(TAG, "IR transmitido: 0x${packet.hexCode32.toString(16).uppercase().padStart(8, '0')} (${packet.pattern.size} pulsos)")
             } catch (e: Exception) {
                 Log.e(TAG, "Fallo al transmitir comando IR", e)
                 _status.value = IrStatus.Error(e.localizedMessage ?: "Error de transmisión IR")
             }
         } else {
-            // Modo Simulación/Debug para pruebas en dispositivos sin blaster IR
+            // Modo Simulación/Debug únicamente si el servicio del sistema no existe
             Log.d(TAG, "[SIMULACIÓN IR] Transmitido: 0x${packet.hexCode32.toString(16).uppercase().padStart(8, '0')} (${packet.pattern.size} pulsos)")
         }
     }
