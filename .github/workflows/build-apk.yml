@@ -1,0 +1,40 @@
+name: Compilar Lumina IR APK
+
+on:
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Generar APK Debug
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar codigo fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Configurar Gradle y Caches
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Dar permisos de ejecucion al wrapper
+        run: chmod +x gradlew
+
+      - name: Compilar APK con Gradle
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Subir APK como artefacto de descarga
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lumina-IR-Honor200Pro
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7

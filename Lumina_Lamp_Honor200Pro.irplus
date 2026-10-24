@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<irplus>
+  <device manufacturer="Lumina" model="RGB Lamp 24-Key" standard="NEC">
+    <button name="POWER ON" format="HEX">0x00FF03FC</button>
+    <button name="POWER OFF" format="HEX">0x00FF02FD</button>
+    <button name="BRIGHT UP" format="HEX">0x00FF00FF</button>
+    <button name="BRIGHT DOWN" format="HEX">0x00FF01FE</button>
+
+    <!-- 16 Colores Cromáticos Físicos de la Lámpara -->
+    <button name="Rojo Rubí" format="HEX">0x00FF04FB</button>
+    <button name="Coral Intenso" format="HEX">0x00FF08F7</button>
+    <button name="Naranja Vivo" format="HEX">0x00FF0CF3</button>
+    <button name="Ámbar Cálido" format="HEX">0x00FF10EF</button>
+    <button name="Amarillo Sol" format="HEX">0x00FF14EB</button>
+    <button name="Verde Lima" format="HEX">0x00FF15EA</button>
+    <button name="Verde Esmeralda" format="HEX">0x00FF05FA</button>
+    <button name="Verde Menta" format="HEX">0x00FF09F6</button>
+    <button name="Turquesa Glaciar" format="HEX">0x00FF0DF2</button>
+    <button name="Cian Neón" format="HEX">0x00FF11EE</button>
+    <button name="Azul Cielo" format="HEX">0x00FF0AF5</button>
+    <button name="Azul Zafiro" format="HEX">0x00FF06F9</button>
+    <button name="Azul Profundo" format="HEX">0x00FF0EF1</button>
+    <button name="Violeta Eléctrico" format="HEX">0x00FF12ED</button>
+    <button name="Magenta Neón" format="HEX">0x00FF16E9</button>
+    <button name="Blanco Neutro" format="HEX">0x00FF07F8</button>
+
+    <!-- Modos de Fábrica -->
+    <button name="Modo Flash" format="HEX">0x00FF0BF4</button>
+    <button name="Modo Strobe" format="HEX">0x00FF0FF0</button>
+    <button name="Modo Fade" format="HEX">0x00FF13EC</button>
+    <button name="Modo Smooth" format="HEX">0x00FF17E8</button>
+  </device>
+</irplus>
